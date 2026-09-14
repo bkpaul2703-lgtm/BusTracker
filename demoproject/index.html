@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="City Bus Tracker - Real-time transit navigation and bus tracking. Find buses by boarding and destination stops.">
+  <title>City Bus Tracker | Real-Time Transit Finder</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Core Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="top-navbar" role="banner">
+    <div class="brand-wrapper">
+      <button class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Toggle navigation menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <a href="index.html" class="brand-wrapper" style="text-decoration: none;">
+        <div class="brand-logo" aria-hidden="true">🚌</div>
+        <div>
+          <h1 class="brand-title">City Bus Tracker</h1>
+        </div>
+      </a>
+      <span class="brand-badge">Live System</span>
+    </div>
+
+    <div class="nav-actions">
+      <div class="live-clock-pill" title="Live clock">
+        <span class="pulse-dot"></span>
+        <span id="liveClockText">--:--:--</span>
+      </div>
+
+      <!-- Role Switcher Dropdown -->
+      <div class="role-switcher-container">
+        <button class="role-switcher-btn" id="roleSwitcherBtn">
+          <span>👤 Role: <strong>Passenger</strong></span>
+          <span style="font-size: 0.7rem;">▼</span>
+        </button>
+        <div class="role-dropdown-menu" id="roleDropdownMenu">
+          <div class="role-dropdown-header">Switch Application Role</div>
+          <a href="index.html" class="role-dropdown-item active">
+            <span>👤</span> <span>Passenger Portal</span>
+          </a>
+          <a href="pages/driver.html" class="role-dropdown-item">
+            <span>🚌</span> <span>Driver Dashboard</span>
+          </a>
+          <a href="pages/admin.html" class="role-dropdown-item">
+            <span>⚙️</span> <span>Admin Management</span>
+          </a>
+          <div style="border-top: 1px solid var(--border-color); margin: 0.25rem 0;"></div>
+          <a href="pages/role-select.html" class="role-dropdown-item" style="font-size: 0.8rem; color: var(--text-muted);">
+            <span>🔄</span> <span>Role Selection Screen</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Sidebar Backdrop Overlay -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <!-- App Main Layout -->
+  <div class="app-container">
+
+    <!-- Desktop Sidebar -->
+    <aside class="app-sidebar" id="appSidebar" aria-label="Primary Navigation">
+      <nav class="sidebar-menu">
+        <a href="index.html" class="sidebar-link active">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          <span>Home</span>
+        </a>
+
+        <a href="pages/live-map.html" class="sidebar-link">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+            <line x1="8" y1="2" x2="8" y2="18"></line>
+            <line x1="16" y1="6" x2="16" y2="22"></line>
+          </svg>
+          <span>Live Map</span>
+        </a>
+
+        <a href="pages/routes.html" class="sidebar-link">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="6" cy="19" r="3"></circle>
+            <path d="M9 19h8.5a4.5 4.5 0 0 0 0-9H7a4 4 0 0 1 0-8h10"></path>
+            <circle cx="18" cy="5" r="3"></circle>
+          </svg>
+          <span>Routes</span>
+        </a>
+
+        <a href="pages/bus-details.html" class="sidebar-link">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="9" x2="15" y2="9"></line>
+            <line x1="9" y1="13" x2="15" y2="13"></line>
+            <line x1="9" y1="17" x2="11" y2="17"></line>
+          </svg>
+          <span>Bus Details</span>
+        </a>
+
+        <a href="pages/profile.html" class="sidebar-link">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Profile</span>
+        </a>
+
+        <div style="margin: 0.75rem 0 0.25rem 0; padding-top: 0.75rem; border-top: 1px solid var(--border-color); font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding-left: 0.75rem;">
+          Staff Portals
+        </div>
+        <a href="pages/driver.html" class="sidebar-link">
+          <span style="font-size: 1.1rem;">🚌</span>
+          <span>Driver Cockpit</span>
+        </a>
+        <a href="pages/admin.html" class="sidebar-link">
+          <span style="font-size: 1.1rem;">⚙️</span>
+          <span>Admin Portal</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p><strong>Guwahati Transit Network</strong></p>
+        <p>Frontend Mock v1.0</p>
+      </div>
+    </aside>
+
+    <!-- Main Viewport Content -->
+    <main class="main-viewport" role="main">
+      <div class="dashboard-grid">
+
+        <!-- Column 1: Search and Available Buses Results -->
+        <section aria-label="Find Buses">
+          
+          <!-- Search Card -->
+          <div class="search-card">
+            <div class="page-header" style="margin-bottom: 1.25rem;">
+              <h2 class="page-title">Find Your Bus</h2>
+              <p class="page-subtitle">Choose your boarding stop and destination to find buses travelling your way.</p>
+            </div>
+
+            <!-- Search Form -->
+            <div class="search-form-wrapper">
+              <div class="stops-selector-row">
+                
+                <!-- Boarding Stop Select -->
+                <div class="stop-input-group">
+                  <label for="boardingStopSelect" class="stop-label origin">
+                    <span class="icon-dot"></span> Boarding Stop
+                  </label>
+                  <div class="select-wrapper">
+                    <select id="boardingStopSelect" class="select-control" aria-required="true">
+                      <option value="">Loading stops...</option>
+                    </select>
+                    <span class="select-icon">▼</span>
+                  </div>
+                </div>
+
+                <!-- Swap Button -->
+                <button type="button" class="swap-btn" id="swapStopsBtn" title="Swap boarding and destination stops" aria-label="Swap boarding and destination">
+                  ⇄
+                </button>
+
+                <!-- Destination Stop Select -->
+                <div class="stop-input-group">
+                  <label for="destinationStopSelect" class="stop-label destination">
+                    <span class="icon-dot"></span> Destination Stop
+                  </label>
+                  <div class="select-wrapper">
+                    <select id="destinationStopSelect" class="select-control" aria-required="true">
+                      <option value="">Loading stops...</option>
+                    </select>
+                    <span class="select-icon">▼</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Action Button -->
+              <div style="margin-top: 0.5rem;">
+                <button type="button" class="btn btn-primary btn-block" id="findBusesBtn" style="padding: 0.875rem; font-size: 1rem;">
+                  🔍 Find Buses
+                </button>
+              </div>
+            </div>
+
+            <!-- Validation / Message Container -->
+            <div id="searchMessageContainer" style="margin-top: 1.25rem;"></div>
+          </div>
+
+          <!-- Dynamic Results Container -->
+          <section id="searchResultsContainer" aria-live="polite">
+            <!-- Default Welcome State -->
+            <div class="empty-state">
+              <div class="empty-state-icon">🚌</div>
+              <h3 class="empty-state-title">Ready for your city journey?</h3>
+              <p class="empty-state-desc">
+                Select where you want to board and where you are headed. We will find all active buses running in that sequence.
+              </p>
+              <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+                <span class="text-xs text-muted" style="align-self: center;">Popular searches:</span>
+                <a href="index.html?origin=S004&dest=S005" class="btn btn-secondary btn-sm" style="font-size: 0.75rem;">
+                  Paltan Bazar ➔ Ganeshguri
+                </a>
+                <a href="index.html?origin=S001&dest=S006" class="btn btn-secondary btn-sm" style="font-size: 0.75rem;">
+                  Jalukbari ➔ Beltola
+                </a>
+              </div>
+            </div>
+          </section>
+
+        </section>
+
+        <!-- Column 2: Live Transit Highlights & System Status -->
+        <aside class="dashboard-side-rail" aria-label="Transit Overview">
+          
+          <!-- Live Map Quick Shortcut Card -->
+          <div class="card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #1e3a8a, #2563eb); color: #ffffff;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+              <div>
+                <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 99px;">
+                  ● Interactive Map
+                </span>
+                <h3 style="font-size: 1.2rem; font-weight: 700; margin-top: 0.5rem; color: #ffffff;">
+                  Real-Time Bus Tracking
+                </h3>
+              </div>
+              <div style="font-size: 2rem;">🗺️</div>
+            </div>
+            <p style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 1.25rem;">
+              Watch simulated buses navigate through Guwahati's corridors with live GPS simulation and stop waypoints.
+            </p>
+            <a href="pages/live-map.html" class="btn btn-block" style="background: #ffffff; color: #1e3a8a; font-weight: 700;">
+              Open Live Transit Map ➔
+            </a>
+          </div>
+
+          <!-- Quick System Stats -->
+          <div class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+              <h3 class="card-title" style="font-size: 1rem;">
+                📊 Network Status
+              </h3>
+              <span class="status-badge live">
+                <span class="pulse-dot"></span> Active
+              </span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.875rem;">
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-muted">Active Routes</span>
+                <strong class="text-sm" style="color: var(--text-main);">3 Corridor Lines</strong>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-muted">Active Buses</span>
+                <strong class="text-sm" style="color: var(--status-live-text);">5 Live Buses</strong>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-muted">Major Stops</span>
+                <strong class="text-sm" style="color: var(--text-main);">9 City Stops</strong>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-muted">Avg Frequency</span>
+                <strong class="text-sm" style="color: var(--text-main);">10 - 15 Mins</strong>
+              </div>
+            </div>
+
+            <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
+              <a href="pages/routes.html" class="btn btn-outline btn-sm btn-block">
+                View All Routes & Timetables
+              </a>
+            </div>
+          </div>
+
+          <!-- Tip Card: Ordered Search Explanation -->
+          <div class="card" style="background: #f8fafc; border-left: 4px solid var(--primary-600);">
+            <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.35rem;">
+              💡 How Route Search Works
+            </h4>
+            <p class="text-xs text-muted" style="line-height: 1.5;">
+              You never need to remember bus numbers! Just pick where you get on and where you get off. Our search validates the exact sequence of stops so you are never put on a bus moving in the wrong direction.
+            </p>
+          </div>
+
+        </aside>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar (Visible only on mobile devices) -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <a href="index.html" class="mobile-nav-item active">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+      </svg>
+      <span>Home</span>
+    </a>
+    <a href="pages/live-map.html" class="mobile-nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+      </svg>
+      <span>Live Map</span>
+    </a>
+    <a href="pages/routes.html" class="mobile-nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="6" cy="19" r="3"></circle>
+        <path d="M9 19h8.5a4.5 4.5 0 0 0 0-9H7a4 4 0 0 1 0-8h10"></path>
+        <circle cx="18" cy="5" r="3"></circle>
+      </svg>
+      <span>Routes</span>
+    </a>
+    <a href="pages/profile.html" class="mobile-nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <!-- Scripts -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/search.js"></script>
+</body>
+</html>

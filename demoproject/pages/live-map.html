@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="City Bus Tracker - Live interactive transit map with real-time simulated GPS bus movement.">
+  <title>Live Transit Map | City Bus Tracker</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet Map CSS CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+
+  <!-- Core Application Stylesheets -->
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+
+  <style>
+    /* Leaflet Marker Styling */
+    .bus-marker-pin {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: #2563eb;
+      color: #ffffff;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.45);
+      cursor: pointer;
+      border: 2.5px solid #ffffff;
+      transition: transform 0.2s ease;
+    }
+
+    .bus-marker-pin:hover {
+      transform: scale(1.15);
+      background: #1d4ed8;
+    }
+
+    .bus-marker-icon {
+      font-size: 1.15rem;
+    }
+
+    .bus-marker-label {
+      display: none;
+    }
+
+    .bus-marker-pulse {
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      border-radius: 50%;
+      border: 2px solid #10b981;
+      animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+
+    .stop-marker-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #2563eb;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .stop-marker-dot:hover {
+      transform: scale(1.3);
+      border-color: #0f172a;
+    }
+
+    /* Map Layout Container */
+    .map-page-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 1.5rem;
+      height: calc(100vh - 170px);
+      min-height: 520px;
+    }
+
+    #cityMap {
+      width: 100%;
+      height: 100%;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border-color);
+      z-index: 10;
+    }
+
+    .map-sidebar-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      height: 100%;
+    }
+
+    .map-bus-scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      margin-top: 0.75rem;
+      padding-right: 4px;
+    }
+
+    @media (max-width: 1024px) {
+      .map-page-grid {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      #cityMap {
+        height: 480px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="top-navbar" role="banner">
+    <div class="brand-wrapper">
+      <button class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Toggle navigation menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <a href="../index.html" class="brand-wrapper" style="text-decoration: none;">
+        <div class="brand-logo" aria-hidden="true">🚌</div>
+        <div>
+          <h1 class="brand-title">City Bus Tracker</h1>
+        </div>
+      </a>
+      <span class="brand-badge">Live Map</span>
+    </div>
+
+    <div class="nav-actions">
+      <div class="live-clock-pill">
+        <span class="pulse-dot"></span>
+        <span id="liveClockText">--:--:--</span>
+      </div>
+
+      <!-- Role Switcher Dropdown -->
+      <div class="role-switcher-container">
+        <button class="role-switcher-btn" id="roleSwitcherBtn">
+          <span>👤 Role: <strong>Passenger</strong></span>
+          <span style="font-size: 0.7rem;">▼</span>
+        </button>
+        <div class="role-dropdown-menu" id="roleDropdownMenu">
+          <div class="role-dropdown-header">Switch Application Role</div>
+          <a href="../index.html" class="role-dropdown-item">
+            <span>👤</span> <span>Passenger Portal</span>
+          </a>
+          <a href="driver.html" class="role-dropdown-item">
+            <span>🚌</span> <span>Driver Dashboard</span>
+          </a>
+          <a href="admin.html" class="role-dropdown-item">
+            <span>⚙️</span> <span>Admin Management</span>
+          </a>
+          <div style="border-top: 1px solid var(--border-color); margin: 0.25rem 0;"></div>
+          <a href="role-select.html" class="role-dropdown-item" style="font-size: 0.8rem; color: var(--text-muted);">
+            <span>🔄</span> <span>Role Selection Screen</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <!-- App Main Layout -->
+  <div class="app-container">
+
+    <!-- Desktop Sidebar -->
+    <aside class="app-sidebar" id="appSidebar" aria-label="Primary Navigation">
+      <nav class="sidebar-menu">
+        <a href="../index.html" class="sidebar-link">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          <span>Home</span>
+        </a>
+
+        <a href="live-map.html" class="sidebar-link active">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+            <line x1="8" y1="2" x2="8" y2="18"></line>
+            <line x1="16" y1="6" x2="16" y2="22"></line>
+          </svg>
+          <span>Live Map</span>
+        </a>
+
+        <a href="routes.html" class="sidebar-link">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="6" cy="19" r="3"></circle>
+            <path d="M9 19h8.5a4.5 4.5 0 0 0 0-9H7a4 4 0 0 1 0-8h10"></path>
+            <circle cx="18" cy="5" r="3"></circle>
+          </svg>
+          <span>Routes</span>
+        </a>
+
+        <a href="bus-details.html" class="sidebar-link">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="9" x2="15" y2="9"></line>
+            <line x1="9" y1="13" x2="15" y2="13"></line>
+            <line x1="9" y1="17" x2="11" y2="17"></line>
+          </svg>
+          <span>Bus Details</span>
+        </a>
+
+        <a href="profile.html" class="sidebar-link">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Profile</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p><strong>Guwahati Transit Network</strong></p>
+        <p>Simulated GPS Active</p>
+      </div>
+    </aside>
+
+    <!-- Main Viewport -->
+    <main class="main-viewport" role="main">
+      <div class="page-container">
+        
+        <!-- Page Title & Map Filter Controls -->
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2 class="page-title">Live Transit Map</h2>
+            <p class="page-subtitle">Real-time GPS tracking of active city buses across transit corridors</p>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <!-- Route Filter -->
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <label for="mapRouteFilter" class="text-xs font-semibold text-muted">FILTER ROUTE:</label>
+              <select id="mapRouteFilter" class="select-control" style="padding: 0.45rem 1rem; width: auto; font-size: 0.875rem;">
+                <option value="ALL">All City Routes</option>
+              </select>
+            </div>
+
+            <!-- Simulation Pause/Resume -->
+            <button type="button" id="toggleSimulationBtn" class="btn btn-outline btn-sm">
+              ⏸️ Pause GPS Simulation
+            </button>
+
+            <!-- Reset Bounds -->
+            <button type="button" id="centerBoundsBtn" class="btn btn-secondary btn-sm" title="Center on all buses">
+              🎯 Center View
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive Map and Active Bus Rail -->
+        <div class="map-page-grid">
+          
+          <!-- Leaflet Map Container -->
+          <div id="cityMap"></div>
+
+          <!-- Live Bus Sidebar List -->
+          <div class="map-sidebar-card">
+            <div class="card-header" style="margin-bottom: 0.5rem; padding-bottom: 0.5rem;">
+              <h3 class="card-title" style="font-size: 1rem;">
+                🚌 Active Buses
+              </h3>
+              <span class="status-badge live">
+                <span class="pulse-dot"></span> GPS Live
+              </span>
+            </div>
+
+            <p class="text-xs text-muted">Click any bus card below to zoom in on its exact live location:</p>
+
+            <!-- Scrollable list populated dynamically by live-map.js -->
+            <div class="map-bus-scroll-area" id="liveBusSidebarList">
+              <div class="loading-state" style="padding: 1.5rem 0;">
+                <div class="spinner"></div>
+                <span class="text-xs text-muted">Loading GPS signals...</span>
+              </div>
+            </div>
+
+            <div style="margin-top: auto; padding-top: 0.75rem; border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--text-muted);">
+              💡 <em>Mock coordinates refresh automatically every 3 seconds to demonstrate dynamic bus movement.</em>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <a href="../index.html" class="mobile-nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+      </svg>
+      <span>Home</span>
+    </a>
+    <a href="live-map.html" class="mobile-nav-item active">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+      </svg>
+      <span>Live Map</span>
+    </a>
+    <a href="routes.html" class="mobile-nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="6" cy="19" r="3"></circle>
+        <path d="M9 19h8.5a4.5 4.5 0 0 0 0-9H7a4 4 0 0 1 0-8h10"></path>
+        <circle cx="18" cy="5" r="3"></circle>
+      </svg>
+      <span>Routes</span>
+    </a>
+    <a href="profile.html" class="mobile-nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <!-- Leaflet Map JS CDN -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Application Scripts -->
+  <script src="../js/mock-data.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/live-map.js"></script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="City Bus Tracker - Role Selection Launchpad. Access Passenger, Driver, or Admin portal.">
+  <title>Select Role | City Bus Tracker</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+
+  <style>
+    .role-select-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+    }
+
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 1050px;
+      width: 100%;
+      margin-top: 2rem;
+    }
+
+    .role-card {
+      background: #ffffff;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.25s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .role-card:hover {
+      border-color: var(--primary-500);
+      box-shadow: var(--shadow-xl);
+      transform: translateY(-4px);
+    }
+
+    .role-icon-box {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .role-card.passenger .role-icon-box {
+      background: #eff6ff;
+      color: #2563eb;
+    }
+
+    .role-card.driver .role-icon-box {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .role-card.admin .role-icon-box {
+      background: #faf5ff;
+      color: #7c3aed;
+    }
+
+    .role-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
+
+    .role-desc {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+      flex: 1;
+    }
+
+    @media (max-width: 900px) {
+      .role-grid {
+        grid-template-columns: 1fr;
+        max-width: 440px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="role-select-wrapper">
+    
+    <div style="text-align: center; max-width: 600px;">
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.35rem 1rem; background: var(--primary-100); color: var(--primary-800); border-radius: 99px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 1rem;">
+        🚌 City Bus Tracker System
+      </div>
+      <h1 style="font-size: 2.25rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.03em;">
+        Select Portal Role
+      </h1>
+      <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.5rem;">
+        Choose which user view you want to test. In this frontend prototype, authentication is simulated and you can freely switch between roles anytime.
+      </p>
+    </div>
+
+    <div class="role-grid">
+      
+      <!-- 1. Passenger Card -->
+      <a href="../index.html" class="role-card passenger">
+        <div class="role-icon-box">👤</div>
+        <h2 class="role-title">Passenger Portal</h2>
+        <p class="role-desc">
+          Search buses by Boarding & Destination stops, view ordered route progressions, explore active lines, and check real-time GPS coordinates.
+        </p>
+        <span class="btn btn-primary btn-block">
+          Enter as Passenger ➔
+        </span>
+      </a>
+
+      <!-- 2. Driver Card -->
+      <a href="driver.html" class="role-card driver">
+        <div class="role-icon-box">🚌</div>
+        <h2 class="role-title">Driver Dashboard</h2>
+        <p class="role-desc">
+          View assigned bus (B001) & corridor route (R001). Control trip lifecycle (Start, Pause, End) and monitor simulated driver phone GPS streaming.
+        </p>
+        <span class="btn btn-success btn-block">
+          Enter as Driver ➔
+        </span>
+      </a>
+
+      <!-- 3. Admin Card -->
+      <a href="admin.html" class="role-card admin">
+        <div class="role-icon-box">⚙️</div>
+        <h2 class="role-title">Admin Management</h2>
+        <p class="role-desc">
+          Full transit system controls: Reorder route stops [↑] [↓], add/remove stations, manage buses, assign drivers, and oversee live fleet operations.
+        </p>
+        <span class="btn btn-block" style="background-color: #7c3aed; color: #fff;">
+          Enter as Admin ➔
+        </span>
+      </a>
+
+    </div>
+
+    <div style="margin-top: 2.5rem; text-align: center; font-size: 0.8rem; color: var(--text-muted);">
+      💡 <em>Tip: You can also use the <strong>Role Switcher</strong> dropdown at the top right of any page to toggle roles without returning here.</em>
+    </div>
+
+  </div>
+
+</body>
+</html>
